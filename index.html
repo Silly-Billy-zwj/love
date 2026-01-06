@@ -3,16 +3,1581 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>我的网站</title>
+  <title>松松❤️松松第</title>
+
   <style>
-    body{font-family:system-ui,Segoe UI,Arial;max-width:720px;margin:60px auto;padding:0 16px;line-height:1.6}
-    .card{border:1px solid #ddd;border-radius:16px;padding:20px}
+    :root{
+      --bg-img: url("倒计时.jpg");
+
+      /* 三卡横排（手机也保持横排） */
+      --gap: clamp(10px, 2.2vw, 22px);
+      --card: min(290px, calc((96vw - 2 * var(--gap)) / 3));
+
+      --radius: 18px;
+      --shadow: 0 22px 70px rgba(0,0,0,0.26);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.74);
+      --glass: rgba(0,0,0,0.22);
+      --pillText: rgba(20, 15, 25, 0.78);
+
+      /* 照片墙：统一间隔 + 左右留空（按钮放这里，不覆盖照片） */
+      --galleryGap: 22px;
+      --sidePad: clamp(82px, 9vw, 110px);
+      --btnSize: 46px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      overflow-x:hidden;
+      padding: clamp(32px, 4.5vw, 56px) 12px clamp(40px, 6vw, 70px);
+
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 18% 18%, rgba(255,255,255,0.55), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 650px at 86% 22%, rgba(255,255,255,0.35), rgba(255,255,255,0) 58%),
+        radial-gradient(1000px 700px at 50% 90%, rgba(255,255,255,0.22), rgba(255,255,255,0) 60%),
+        linear-gradient(135deg, #ffd1dc 0%, #f7b2c4 38%, #d7a7ff 100%);
+      background-attachment: fixed;
+    }
+
+    .wrap{
+      width: 96vw;
+      max-width: 1200px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 16px;
+    }
+
+    /* 顶部日期 */
+    .headerPill{
+      width: min(96vw, calc(3 * var(--card) + 2 * var(--gap)));
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.26);
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.14);
+      color: var(--pillText);
+      text-align:center;
+      line-height: 1.15;
+      font-weight: 780;
+      letter-spacing: 0.02em;
+
+      /* 你改字号就在这里 */
+      font-size: clamp(36px, 1.8vw, 48px);
+
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    /* 三模块永远横排 */
+    .row{
+      width: calc(3 * var(--card) + 2 * var(--gap));
+      max-width: 96vw;
+      display:grid;
+      grid-template-columns: repeat(3, var(--card));
+      justify-content:center;
+      gap: var(--gap);
+      align-items:start;
+    }
+
+    .module{
+      width: var(--card);
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius);
+      overflow:hidden;
+      position:relative;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.20);
+    }
+
+    /* ===== 天气卡片 ===== */
+    .card{
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .cardInner{
+      height: 100%;
+      padding: calc(var(--card) * 0.055);
+      display:flex;
+      flex-direction:column;
+      min-width: 0;
+    }
+
+    .cardTop{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: calc(var(--card) * 0.02);
+      margin-bottom: calc(var(--card) * 0.04);
+    }
+
+    .topRow{
+      width:100%;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .city{
+      font-size: calc(var(--card) * 0.065);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      text-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+    }
+
+    .sub{
+      font-size: calc(var(--card) * 0.04);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      white-space: nowrap;
+    }
+
+    .localTime{
+      font-size: calc(var(--card) * 0.070);
+      font-weight: 930;
+      color: rgba(255,255,255,0.92);
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+      white-space: nowrap;
+    }
+
+    .weatherMain{
+      display:flex;
+      align-items:center;
+      gap: calc(var(--card) * 0.04);
+      margin-top: calc(var(--card) * 0.02);
+      min-width: 0;
+    }
+
+    .icon{
+      width: calc(var(--card) * 0.23);
+      height: calc(var(--card) * 0.23);
+      display:grid;
+      place-items:center;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 34px rgba(0,0,0,0.20);
+      flex: 0 0 auto;
+    }
+    .icon svg{ width: 78%; height: 78%; opacity: 0.96; }
+
+    .tempBlock{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .tempLine{
+      font-size: calc(var(--card) * 0.13);
+      font-weight: 950;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .tempLine span.unit{
+      font-size: calc(var(--card) * 0.055);
+      font-weight: 850;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .desc{
+      font-size: calc(var(--card) * 0.048);
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .range{
+      margin-top: auto;
+      padding: 12px 12px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .rangeBar{
+      position:relative;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      overflow:hidden;
+    }
+
+    .rangeFill{
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.30), rgba(255,255,255,0.18));
+      opacity: 0.7;
+    }
+
+    .dot{
+      position:absolute;
+      top: 50%;
+      width: 12px; height: 12px;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.90);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      border: 1px solid rgba(0,0,0,0.12);
+    }
+
+    .rangeLabels{
+      display:flex;
+      justify-content:space-between;
+      margin-top: 8px;
+      font-size: calc(var(--card) * 0.04);
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+      gap: 10px;
+    }
+
+    .updated{
+      margin-top: 8px;
+      font-size: calc(var(--card) * 0.038);
+      color: rgba(255,255,255,0.62);
+      white-space: nowrap;
+    }
+
+    /* ===== 中间计时器模块（背景图） ===== */
+    .center{
+      background-image: var(--bg-img);
+      background-size: cover;
+      background-position: center;
+      background-color:#111;
+    }
+
+    .center::before{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.16) 0%,
+        rgba(0,0,0,0.34) 45%,
+        rgba(0,0,0,0.76) 80%,
+        rgba(0,0,0,0.86) 100%);
+    }
+    .center::after{
+      content:"";
+      position:absolute; inset:-18px;
+      background: radial-gradient(900px 600px at 50% 50%, transparent 55%, rgba(0,0,0,0.52) 100%);
+      pointer-events:none;
+    }
+
+    .centerContent{
+      position:absolute; inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:space-between;
+      padding: calc(var(--card) * 0.06);
+      text-align:center;
+      z-index: 2;
+    }
+
+    .topTitle{
+      margin-top: 6px;
+      font-size: calc(var(--card) * 0.10);
+      font-weight: 900;
+      text-shadow: 0 6px 24px rgba(0,0,0,0.55);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .daysNumber{
+      font-family: "Times New Roman", Georgia, "Noto Serif SC", "Songti SC", serif;
+      font-size: calc(var(--card) * 0.55);
+      font-weight: 500;
+      line-height: 0.95;
+      color: rgba(255,255,255,0.86);
+      text-shadow: 0 18px 60px rgba(0,0,0,0.55);
+      font-variant-numeric: tabular-nums;
+      transform: translateY(-4px);
+      white-space: nowrap;
+    }
+
+    .bottom{
+      margin-bottom: 6px;
+      font-size: calc(var(--card) * 0.055);
+      color: rgba(255,255,255,0.88);
+      text-shadow: 0 10px 30px rgba(0,0,0,0.55);
+      white-space: nowrap;
+    }
+
+    /* =========================
+       ✅ 右下角悬浮：爱心框 + 红色感叹号 + 新消息（不遮挡模块）
+       ========================= */
+    .floatingMsg{
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 9998;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 8px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-user-select:none;
+      transform-origin: 70% 80%;
+      animation: floatWobble 1.9s ease-in-out infinite;
+    }
+
+    .heartBadge{
+      width: 58px;
+      height: 58px;
+      display:grid;
+      place-items:center;
+      position:relative;
+      filter: drop-shadow(0 16px 28px rgba(0,0,0,0.28));
+    }
+
+    /* 用clip-path做一个心形外框 */
+    .heartBadge::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(145deg, rgba(255,120,170,0.95), rgba(255,170,210,0.85));
+      clip-path: path("M29 52 C29 52 4 37 4 20 C4 10 11 4 20 4 C25 4 28 7 29 9 C30 7 33 4 38 4 C47 4 54 10 54 20 C54 37 29 52 29 52 Z");
+    }
+
+    /* 内层玻璃心 */
+    .heartBadge::after{
+      content:"";
+      position:absolute;
+      inset:3px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      clip-path: path("M29 50 C29 50 6 36 6 20 C6 11 12 6 20 6 C25 6 28 9 29 11 C30 9 33 6 38 6 C46 6 52 11 52 20 C52 36 29 50 29 50 Z");
+    }
+
+    .badgeBang{
+      position:relative;
+      z-index:2;
+      font-weight: 950;
+      font-size: 28px;
+      line-height: 1;
+      color: #ff2f55; /* ✅ 红色感叹号 */
+      text-shadow:
+        0 10px 22px rgba(0,0,0,0.35),
+        0 0 14px rgba(255,47,85,0.35);
+      transform: translateY(-1px);
+    }
+
+    .msgText{
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.22);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.92);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+    }
+
+    @keyframes floatWobble{
+      0%   { transform: translateY(0) rotate(0deg); }
+      18%  { transform: translateY(-2px) rotate(-8deg); }
+      36%  { transform: translateY(-3px) rotate(7deg); }
+      54%  { transform: translateY(-2px) rotate(-6deg); }
+      72%  { transform: translateY(-1px) rotate(5deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    /* ===== 弹窗（纪念日） ===== */
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      z-index: 9999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 22px 14px;
+      background: rgba(0,0,0,0.36);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .modalOverlay.open{ display:flex; }
+
+    .modalCard{
+      width: min(560px, 94vw);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background:
+        radial-gradient(600px 400px at 20% 10%, rgba(255,255,255,0.22), rgba(255,255,255,0) 55%),
+        radial-gradient(600px 420px at 80% 0%, rgba(255,255,255,0.16), rgba(255,255,255,0) 58%),
+        rgba(255,255,255,0.12);
+      box-shadow: 0 26px 90px rgba(0,0,0,0.34);
+      overflow:hidden;
+      position:relative;
+      transform: translateY(6px);
+      animation: popIn 180ms ease-out;
+    }
+
+    @keyframes popIn{
+      from { transform: translateY(14px) scale(0.985); opacity: 0; }
+      to   { transform: translateY(6px) scale(1); opacity: 1; }
+    }
+
+    .modalClose{
+      position:absolute;
+      top: 10px;
+      right: 10px;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.92);
+      font-size: 22px;
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.20);
+      display:grid;
+      place-items:center;
+      user-select:none;
+    }
+    .modalClose:hover{ background: rgba(0,0,0,0.30); }
+    .modalClose:active{ transform: scale(0.97); }
+
+    .modalBody{
+      padding: 22px 18px 18px;
+      text-align:center;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .flowerWrap{
+      width: 110px;
+      height: 110px;
+      margin: 10px auto 10px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.16);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.20);
+      display:grid;
+      place-items:center;
+    }
+
+    .flowerEmoji{
+      font-size: 64px;
+      line-height: 1;
+      filter: drop-shadow(0 16px 30px rgba(0,0,0,0.35));
+      transform: translateY(2px);
+    }
+
+    .modalTitle{
+      margin: 12px 0 6px;
+      font-weight: 950;
+      font-size: 28px;
+      letter-spacing: 0.03em;
+      text-shadow: 0 18px 50px rgba(0,0,0,0.30);
+    }
+
+    .modalSub{
+      margin: 0 0 16px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.78);
+      font-size: 14px;
+    }
+
+    .letter{
+      margin: 10px auto 4px;
+      text-align:left;
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 14px 14px 12px;
+      box-shadow: 0 18px 54px rgba(0,0,0,0.18);
+    }
+
+    .letterLine{
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.90);
+      font-weight: 700;
+      white-space: pre-line;
+    }
+
+    .letterLine strong{
+      font-weight: 950;
+      color: rgba(255,255,255,0.95);
+    }
+
+    /* ===== 音乐模块（宽度与照片墙相同） ===== */
+    .musicSection, .gallerySection{
+      width: calc(3 * var(--card) + 2 * var(--gap));
+      max-width: 96vw;
+      display:flex;
+      justify-content:center;
+      margin-top: 6px;
+    }
+
+    .musicShell, .galleryShell{
+      width: 100%;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.14);
+      padding: 14px 14px 12px;
+    }
+
+    .musicTitle, .galleryTitle{
+      text-align:center;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: rgba(25, 18, 30, 0.70);
+      text-shadow: 0 10px 24px rgba(255,255,255,0.25);
+      margin: 2px 0 10px;
+      font-size: 18px;
+    }
+
+    .playerRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .btn{
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+      color: rgba(255,255,255,0.92);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      user-select:none;
+      flex: 0 0 auto;
+    }
+    .btn:hover{ background: rgba(0,0,0,0.26); }
+    .btn:active{ transform: scale(0.97); }
+    .btn svg{ width: 22px; height: 22px; }
+
+    .progressWrap{
+      flex: 1 1 auto;
+      min-width: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+
+    .timeRow{
+      display:flex;
+      justify-content:space-between;
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+      color: rgba(25, 18, 30, 0.70);
+      padding: 0 2px;
+      white-space: nowrap;
+    }
+
+    input[type="range"]{
+      -webkit-appearance: none;
+      appearance:none;
+      width:100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.30);
+      outline:none;
+      border: 1px solid rgba(255,255,255,0.22);
+      overflow:hidden;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance:none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      border: 1px solid rgba(0,0,0,0.10);
+      cursor:pointer;
+    }
+
+    /* ===== 照片墙 ===== */
+    .galleryShell{ padding: 16px 14px 14px; }
+
+    .galleryFrame{
+      display:grid;
+      grid-template-columns: var(--sidePad) 1fr var(--sidePad);
+      align-items:center;
+      border-radius: 18px;
+      overflow:hidden;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .sideCol{
+      height: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+    }
+
+    .galleryViewport{
+      position:relative;
+      overflow:hidden;
+      height: clamp(250px, 30vw, 340px);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .galleryViewport::before,
+    .galleryViewport::after{
+      content:"";
+      position:absolute;
+      top:0; bottom:0;
+      width: 78px;
+      z-index: 3;
+      pointer-events:none;
+    }
+    .galleryViewport::before{
+      left:0;
+      background: linear-gradient(90deg, rgba(255,209,220,0.85), rgba(255,209,220,0.0));
+    }
+    .galleryViewport::after{
+      right:0;
+      background: linear-gradient(270deg, rgba(215,167,255,0.85), rgba(215,167,255,0.0));
+    }
+
+    .navBtn{
+      width: var(--btnSize);
+      height: var(--btnSize);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.30);
+      background: rgba(0,0,0,0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: rgba(255,255,255,0.92);
+      font-size: 26px;
+      font-weight: 900;
+      line-height: var(--btnSize);
+      text-align:center;
+      cursor:pointer;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.20);
+      user-select: none;
+    }
+    .navBtn:hover{ background: rgba(0,0,0,0.30); }
+    .navBtn:active{ transform: scale(0.96); }
+
+    .galleryScroll{
+      height: 100%;
+      display:flex;
+      align-items:center;
+      gap: var(--galleryGap);
+      padding: 18px 96px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+      scroll-behavior:auto;
+      cursor: grab;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: pan-x;
+    }
+    .galleryScroll::-webkit-scrollbar{ display:none; }
+    .galleryScroll.dragging{
+      cursor: grabbing;
+      scroll-snap-type:none;
+    }
+
+    .photo{
+      flex: 0 0 auto;
+      width: clamp(150px, 18vw, 235px);
+      aspect-ratio: 3 / 4;
+      border-radius: 18px;
+      overflow:hidden;
+      position:relative;
+      scroll-snap-align:center;
+      transform-style:preserve-3d;
+
+      --r: 0deg;
+      --s: 1;
+      --o: 1;
+      --fade: 0.0;
+      --blur: 0px;
+
+      transform: perspective(1100px) rotateY(var(--r)) scale(var(--s));
+      opacity: var(--o);
+      filter: blur(var(--blur));
+      transition: opacity 120ms linear;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.26);
+    }
+    .photo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      -webkit-user-drag:none;
+      user-drag:none;
+      pointer-events:none;
+    }
+    .photo::after{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 18px;
+      background:
+        linear-gradient(90deg,
+          rgba(0,0,0, calc(var(--fade) * 0.85)) 0%,
+          rgba(0,0,0, 0.00) 30%,
+          rgba(0,0,0, 0.00) 70%,
+          rgba(0,0,0, calc(var(--fade) * 0.85)) 100%);
+      pointer-events:none;
+    }
+    .photo::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 18px;
+      background:
+        radial-gradient(120px 240px at 25% 30%, rgba(255,255,255,0.14), transparent 55%),
+        radial-gradient(120px 240px at 75% 30%, rgba(255,255,255,0.12), transparent 60%);
+      opacity: calc(1 - var(--fade));
+      pointer-events:none;
+    }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <h1>你好，这是我的网页 👋</h1>
-    <p>我已经把它发布到互联网上了，别人可以用网址访问。</p>
+  <div class="wrap">
+    <div id="todayDate" class="headerPill">今天：--</div>
+
+    <div class="row">
+      <!-- Sheffield -->
+      <div class="module card">
+        <div class="cardInner">
+          <div class="cardTop">
+            <div class="topRow">
+              <div class="city">谢菲尔德</div>
+              <div class="sub">今日天气</div>
+            </div>
+            <div id="sheffieldTime" class="localTime">当地时间 --:--</div>
+          </div>
+
+          <div class="weatherMain">
+            <div class="icon" id="sheffieldIcon"></div>
+            <div class="tempBlock">
+              <div class="tempLine"><span id="sheffieldTemp">--</span><span class="unit">°C</span></div>
+              <div class="desc" id="sheffieldDesc">加载中…</div>
+            </div>
+          </div>
+
+          <div class="range">
+            <div class="rangeBar">
+              <div class="rangeFill"></div>
+              <div class="dot" id="sheffieldDot" style="left:50%"></div>
+            </div>
+            <div class="rangeLabels">
+              <span>最低 <span id="sheffieldMin">--</span>°</span>
+              <span>最高 <span id="sheffieldMax">--</span>°</span>
+            </div>
+            <div class="updated" id="sheffieldUpdate">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center -->
+      <div class="module center">
+        <div class="centerContent">
+          <div class="topTitle">松松❤️松松第</div>
+          <div id="days" class="daysNumber">0</div>
+          <div class="bottom">起始日：2023-7-23 星期日</div>
+        </div>
+      </div>
+
+      <!-- Nanjing -->
+      <div class="module card">
+        <div class="cardInner">
+          <div class="cardTop">
+            <div class="topRow">
+              <div class="city">南京</div>
+              <div class="sub">今日天气</div>
+            </div>
+            <div id="nanjingTime" class="localTime">当地时间 --:--</div>
+          </div>
+
+          <div class="weatherMain">
+            <div class="icon" id="nanjingIcon"></div>
+            <div class="tempBlock">
+              <div class="tempLine"><span id="nanjingTemp">--</span><span class="unit">°C</span></div>
+              <div class="desc" id="nanjingDesc">加载中…</div>
+            </div>
+          </div>
+
+          <div class="range">
+            <div class="rangeBar">
+              <div class="rangeFill"></div>
+              <div class="dot" id="nanjingDot" style="left:50%"></div>
+            </div>
+            <div class="rangeLabels">
+              <span>最低 <span id="nanjingMin">--</span>°</span>
+              <span>最高 <span id="nanjingMax">--</span>°</span>
+            </div>
+            <div class="updated" id="nanjingUpdate">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 音乐模块 -->
+    <section class="musicSection">
+      <div class="musicShell">
+        <div class="musicTitle">音乐</div>
+        <div class="playerRow">
+          <button class="btn" id="btnRew" title="快退 10 秒" aria-label="快退 10 秒">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M11 19l-8-7 8-7v14z" fill="rgba(255,255,255,0.92)"/>
+              <path d="M21 19l-8-7 8-7v14z" fill="rgba(255,255,255,0.70)"/>
+            </svg>
+          </button>
+
+          <button class="btn" id="btnPlay" title="播放/暂停" aria-label="播放/暂停">
+            <svg id="iconPlay" viewBox="0 0 24 24" fill="none">
+              <path d="M8 5v14l12-7-12-7z" fill="rgba(255,255,255,0.92)"/>
+            </svg>
+          </button>
+
+          <button class="btn" id="btnFwd" title="快进 10 秒" aria-label="快进 10 秒">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M13 19l8-7-8-7v14z" fill="rgba(255,255,255,0.92)"/>
+              <path d="M3 19l8-7-8-7v14z" fill="rgba(255,255,255,0.70)"/>
+            </svg>
+          </button>
+
+          <div class="progressWrap">
+            <input id="seek" type="range" min="0" max="1000" value="0" />
+            <div class="timeRow">
+              <span id="tCur">00:00</span>
+              <span id="tDur">00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <audio id="audio" preload="auto" src="音乐.mp3" playsinline></audio>
+      </div>
+    </section>
+
+    <!-- Photo Wall -->
+    <section class="gallerySection">
+      <div class="galleryShell">
+        <div class="galleryTitle">照片墙</div>
+
+        <div class="galleryFrame">
+          <div class="sideCol">
+            <button class="navBtn" id="galleryPrev" aria-label="上一张">‹</button>
+          </div>
+
+          <div class="galleryViewport" id="galleryViewport">
+            <div class="galleryScroll" id="galleryScroll" aria-label="照片墙（可左右滑动）"></div>
+          </div>
+
+          <div class="sideCol">
+            <button class="navBtn" id="galleryNext" aria-label="下一张">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
+
+  <!-- ✅ 右下角悬浮按钮（不在模块里） -->
+  <div id="openAnniv" class="floatingMsg" role="button" tabindex="0" aria-label="打开新消息">
+    <div class="heartBadge" aria-hidden="true">
+      <div class="badgeBang">!</div>
+    </div>
+    <div class="msgText">新消息</div>
+  </div>
+
+  <!-- ✅ 纪念日弹窗 -->
+  <div id="annivModal" class="modalOverlay" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-label="900天纪念日">
+      <button class="modalClose" id="closeAnniv" aria-label="关闭">×</button>
+      <div class="modalBody">
+        <div class="flowerWrap" aria-hidden="true">
+          <div class="flowerEmoji">💐</div>
+        </div>
+
+        <div class="modalTitle">900天纪念日快乐</div>
+        <div class="modalSub">送最美丽的宝宝的赛博鲜花</div>
+
+        <div class="letter">
+          <div class="letterLine">
+            &nbsp;&nbsp;<strong>致宝宝：</strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;不知不觉已经900天啦，900天前的我，可能永远想象不到今天。但是今天的我可以想象到未来几年后，我们有了自己的小家，互相依靠在一起，仍然甜甜蜜蜜！宝宝，我真的很想跟你有个家，真的超级喜欢你。祝我们越来越好呀，少互相生气，越来越相爱，900天快乐！
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 顶部日期 =====
+    const weekCN = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    function formatToday(){
+      const now = new Date();
+      return `今天：${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日  ${weekCN[now.getDay()]}`;
+    }
+    function updateHeaderDate(){ document.getElementById("todayDate").textContent = formatToday(); }
+    updateHeaderDate();
+    setInterval(updateHeaderDate, 60 * 1000);
+
+    // ===== 天数（+1）=====
+    const START = { y: 2023, m: 7, d: 23 };
+    function daysPassedPlusOne(){
+      const now = new Date();
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startMidnight = new Date(START.y, START.m - 1, START.d);
+      const diffDays = Math.floor((todayMidnight - startMidnight) / 86400000);
+      return diffDays + 1;
+    }
+    function updateDays(){ document.getElementById("days").textContent = daysPassedPlusOne(); }
+    updateDays();
+    setInterval(updateDays, 60 * 1000);
+
+    // ===== 城市当地时间 =====
+    function formatLocalTime(timeZone){
+      return new Intl.DateTimeFormat("zh-CN", {
+        timeZone, hour:"2-digit", minute:"2-digit", hour12:false
+      }).format(new Date());
+    }
+    function updateCityTimes(){
+      document.getElementById("sheffieldTime").textContent = `当地时间 ${formatLocalTime("Europe/London")}`;
+      document.getElementById("nanjingTime").textContent   = `当地时间 ${formatLocalTime("Asia/Shanghai")}`;
+    }
+    updateCityTimes();
+    setInterval(updateCityTimes, 1000);
+
+    // ===== 天气：Open-Meteo（无需Key）=====
+    function weatherTextFromCode(code){
+      if (code === 0) return "晴朗";
+      if (code === 1) return "大部晴朗";
+      if (code === 2) return "局部多云";
+      if (code === 3) return "阴天";
+      if (code === 45 || code === 48) return "雾";
+      if ([51,53,55,56,57].includes(code)) return "毛毛雨";
+      if ([61,63,65,66,67].includes(code)) return "降雨";
+      if ([71,73,75,77].includes(code)) return "降雪";
+      if ([80,81,82].includes(code)) return "阵雨";
+      if ([95,96,99].includes(code)) return "雷暴";
+      return "天气变化";
+    }
+    function iconSVG(code, isDay){
+      const stroke = 'rgba(255,255,255,0.92)';
+      const fill   = 'rgba(255,255,255,0.18)';
+      const sun = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="10" stroke="${stroke}" stroke-width="3"/>
+          <g stroke="${stroke}" stroke-width="3" stroke-linecap="round">
+            <path d="M32 6v8"/><path d="M32 50v8"/>
+            <path d="M6 32h8"/><path d="M50 32h8"/>
+            <path d="M13 13l6 6"/><path d="M45 45l6 6"/>
+            <path d="M51 13l-6 6"/><path d="M19 45l-6 6"/>
+          </g>
+        </svg>`;
+      const moon = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M40 8c-9 2-16 10-16 20 0 11 9 20 20 20 4 0 8-1 11-3-3 8-11 13-20 13-13 0-24-11-24-24 0-11 7-20 17-23 4-1 8-1 12-0.5z"
+            stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>
+        </svg>`;
+      const cloud = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M22 44h26a10 10 0 0 0 0-20 14 14 0 0 0-27-3A9 9 0 0 0 22 44z"
+            fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>
+        </svg>`;
+      const partly = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <g opacity="0.95">
+            <circle cx="24" cy="26" r="8" stroke="${stroke}" stroke-width="3"/>
+            <g stroke="${stroke}" stroke-width="3" stroke-linecap="round">
+              <path d="M24 10v5"/><path d="M24 37v5"/>
+              <path d="M8 26h5"/><path d="M35 26h5"/>
+              <path d="M13 15l4 4"/><path d="M31 33l4 4"/>
+              <path d="M35 15l-4 4"/><path d="M17 33l-4 4"/>
+            </g>
+          </g>
+          <path d="M26 46h22a8 8 0 0 0 0-16 12 12 0 0 0-22 3 7 7 0 0 0 0 13z"
+            fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>
+        </svg>`;
+      const rain = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M22 38h26a10 10 0 0 0 0-20 14 14 0 0 0-27-3A9 9 0 0 0 22 38z"
+            fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>
+          <g stroke="${stroke}" stroke-width="3" stroke-linecap="round">
+            <path d="M24 44l-2 6"/><path d="M34 44l-2 6"/><path d="M44 44l-2 6"/>
+          </g>
+        </svg>`;
+      const snow = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M22 36h26a10 10 0 0 0 0-20 14 14 0 0 0-27-3A9 9 0 0 0 22 36z"
+            fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>
+          <g fill="${stroke}">
+            <circle cx="24" cy="46" r="2"/><circle cx="32" cy="50" r="2"/><circle cx="40" cy="46" r="2"/>
+          </g>
+        </svg>`;
+      const fog = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <g stroke="${stroke}" stroke-width="3" stroke-linecap="round">
+            <path d="M14 26h36"/><path d="M10 34h44"/><path d="M14 42h36"/>
+          </g>
+        </svg>`;
+      const thunder = `
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M22 36h26a10 10 0 0 0 0-20 14 14 0 0 0-27-3A9 9 0 0 0 22 36z"
+            fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M30 40l-4 10h6l-3 10 10-14h-6l3-6h-6z"
+            fill="rgba(255,255,255,0.92)"/>
+        </svg>`;
+
+      if (code === 0) return isDay ? sun : moon;
+      if (code === 1 || code === 2) return partly;
+      if (code === 3) return cloud;
+      if (code === 45 || code === 48) return fog;
+      if ([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return rain;
+      if ([71,73,75,77].includes(code)) return snow;
+      if ([95,96,99].includes(code)) return thunder;
+      return cloud;
+    }
+    function setDotPosition(dotEl, temp, tMin, tMax){
+      if (typeof temp !== "number" || typeof tMin !== "number" || typeof tMax !== "number" || tMax <= tMin){
+        dotEl.style.left = "50%"; return;
+      }
+      const p = (temp - tMin) / (tMax - tMin);
+      dotEl.style.left = `${Math.max(0.02, Math.min(0.98, p)) * 100}%`;
+    }
+    async function loadWeather(prefix, lat, lon){
+      const tempEl = document.getElementById(prefix + "Temp");
+      const descEl = document.getElementById(prefix + "Desc");
+      const iconEl = document.getElementById(prefix + "Icon");
+      const minEl  = document.getElementById(prefix + "Min");
+      const maxEl  = document.getElementById(prefix + "Max");
+      const dotEl  = document.getElementById(prefix + "Dot");
+      const updEl  = document.getElementById(prefix + "Update");
+
+      try{
+        const url =
+          `https://api.open-meteo.com/v1/forecast` +
+          `?latitude=${lat}&longitude=${lon}` +
+          `&current=temperature_2m,weather_code,is_day` +
+          `&daily=temperature_2m_max,temperature_2m_min` +
+          `&forecast_days=1&timezone=auto`;
+
+        const res = await fetch(url);
+        if(!res.ok) throw new Error("网络请求失败");
+        const data = await res.json();
+
+        const temp = Math.round(data.current.temperature_2m);
+        const code = data.current.weather_code;
+        const isDay = !!data.current.is_day;
+        const tMax = Math.round(data.daily.temperature_2m_max[0]);
+        const tMin = Math.round(data.daily.temperature_2m_min[0]);
+
+        tempEl.textContent = temp;
+        descEl.textContent = weatherTextFromCode(code);
+        iconEl.innerHTML = iconSVG(code, isDay);
+        minEl.textContent = tMin;
+        maxEl.textContent = tMax;
+        setDotPosition(dotEl, temp, tMin, tMax);
+
+        const timeStr = data.current.time || "";
+        const hhmm = timeStr.includes("T") ? timeStr.split("T")[1].slice(0,5) : "";
+        updEl.textContent = hhmm ? `更新：${hhmm}` : "更新：—";
+      }catch(e){
+        descEl.textContent = "获取天气失败";
+        iconEl.innerHTML = iconSVG(3, true);
+        updEl.textContent = "请检查网络或稍后重试";
+      }
+    }
+    loadWeather("sheffield", 53.3811, -1.4701);
+    loadWeather("nanjing", 32.0603, 118.7969);
+    setInterval(() => {
+      loadWeather("sheffield", 53.3811, -1.4701);
+      loadWeather("nanjing", 32.0603, 118.7969);
+    }, 30 * 60 * 1000);
+
+    // ===== 音乐播放器：自动播放 + 同步按钮图标 =====
+    (function initPlayer(){
+      const audio = document.getElementById("audio");
+      const btnPlay = document.getElementById("btnPlay");
+      const btnRew = document.getElementById("btnRew");
+      const btnFwd = document.getElementById("btnFwd");
+      const seek = document.getElementById("seek");
+      const tCur = document.getElementById("tCur");
+      const tDur = document.getElementById("tDur");
+      const iconPlay = document.getElementById("iconPlay");
+
+      const SEEK_MAX = 1000;
+      let seeking = false;
+
+      function fmt(sec){
+        if(!isFinite(sec) || sec < 0) sec = 0;
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+      }
+
+      function setPlayIcon(isPlaying){
+        iconPlay.innerHTML = isPlaying
+          ? '<path d="M7 5h4v14H7V5zm6 0h4v14h-4V5z" fill="rgba(255,255,255,0.92)"/>'
+          : '<path d="M8 5v14l12-7-12-7z" fill="rgba(255,255,255,0.92)"/>';
+      }
+
+      async function tryAutoplay(){
+        try{
+          audio.muted = false;
+          await audio.play();
+          setPlayIcon(true);
+          return;
+        }catch(e){
+          try{
+            audio.muted = true;
+            await audio.play();
+            setPlayIcon(true);
+          }catch(e2){
+            setPlayIcon(false);
+          }
+
+          const unlock = async () => {
+            try{
+              audio.muted = false;
+              await audio.play();
+              setPlayIcon(true);
+            }catch(_){}
+            document.removeEventListener("pointerdown", unlock, true);
+            document.removeEventListener("keydown", unlock, true);
+          };
+          document.addEventListener("pointerdown", unlock, true);
+          document.addEventListener("keydown", unlock, true);
+        }
+      }
+
+      btnPlay.addEventListener("click", async () => {
+        if(audio.paused){
+          try{ await audio.play(); }catch(e){}
+        }else{
+          audio.pause();
+        }
+      });
+
+      btnRew.addEventListener("click", () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+      btnFwd.addEventListener("click", () => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10); });
+
+      seek.addEventListener("input", () => {
+        seeking = true;
+        const p = seek.value / SEEK_MAX;
+        const t = (audio.duration || 0) * p;
+        tCur.textContent = fmt(t);
+      });
+      seek.addEventListener("change", () => {
+        const p = seek.value / SEEK_MAX;
+        audio.currentTime = (audio.duration || 0) * p;
+        seeking = false;
+      });
+
+      audio.addEventListener("loadedmetadata", () => { tDur.textContent = fmt(audio.duration || 0); });
+      audio.addEventListener("timeupdate", () => {
+        if(!seeking){
+          const p = (audio.duration ? (audio.currentTime / audio.duration) : 0);
+          seek.value = Math.round(p * SEEK_MAX);
+        }
+        tCur.textContent = fmt(audio.currentTime || 0);
+      });
+
+      audio.addEventListener("play", () => setPlayIcon(true));
+      audio.addEventListener("pause", () => setPlayIcon(false));
+      setPlayIcon(false);
+
+      window.addEventListener("load", () => { tryAutoplay(); });
+    })();
+
+    // ===== 纪念日弹窗：打开/关闭 =====
+    (function initAnnivModal(){
+      const openBtn = document.getElementById("openAnniv");
+      const overlay = document.getElementById("annivModal");
+      const closeBtn = document.getElementById("closeAnniv");
+
+      function open(){
+        overlay.classList.add("open");
+        overlay.setAttribute("aria-hidden", "false");
+      }
+      function close(){
+        overlay.classList.remove("open");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+
+      openBtn.addEventListener("click", open);
+      openBtn.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); }
+      });
+
+      closeBtn.addEventListener("click", close);
+      overlay.addEventListener("click", (e) => { if(e.target === overlay) close(); });
+      document.addEventListener("keydown", (e) => { if(e.key === "Escape") close(); });
+    })();
+
+    // =======================
+    // 照片墙：20张 + 按钮切换 + 3秒自动切换（无操作时） + 拖动惯性 + 循环
+    // =======================
+    (function initGallery(){
+      const viewport = document.getElementById("galleryViewport");
+      const scroll = document.getElementById("galleryScroll");
+      const prevBtn = document.getElementById("galleryPrev");
+      const nextBtn = document.getElementById("galleryNext");
+
+      const TOTAL_PHOTOS = 20; // 1.jpg ~ 20.jpg
+      const COUNT = TOTAL_PHOTOS;
+      const COPIES = 3;
+
+      let setWidth = 0;
+      let stepPx = 0;
+
+      let dragging = false;
+      let pointerId = null;
+      let startX = 0;
+      let startScrollLeft = 0;
+      let prevX = 0;
+      let prevT = 0;
+      let velocity = 0;
+      let rafId = 0;
+
+      let autoTimer = 0;
+      let resumeTimer = 0;
+      let programmatic = false;
+
+      const DRAG_GAIN = 1.0;
+      const MAX_V = 0.85;
+      const MIN_V = 0.03;
+      const FRICTION = 0.86;
+
+      function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+      function stopAuto(){
+        if(autoTimer){ clearInterval(autoTimer); autoTimer = 0; }
+      }
+      function startAuto(){
+        stopAuto();
+        autoTimer = setInterval(() => {
+          if(dragging || rafId) return;
+          nudge(+1, true);
+        }, 3000);
+      }
+
+      function userInteracted(){
+        if(programmatic) return;
+        stopAuto();
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(() => startAuto(), 1600);
+      }
+
+      function createPhoto(n){
+        const item = document.createElement("div");
+        item.className = "photo";
+        const img = document.createElement("img");
+        img.src = `${n}.jpg`;
+        img.alt = `photo-${n}`;
+        img.loading = "lazy";
+        img.draggable = false;
+        item.appendChild(img);
+        return item;
+      }
+
+      for(let c=0;c<COPIES;c++){
+        for(let i=1;i<=COUNT;i++){
+          scroll.appendChild(createPhoto(i));
+        }
+      }
+
+      function measure(){
+        const first = scroll.querySelector(".photo");
+        if(!first) return;
+
+        const gap = parseFloat(getComputedStyle(scroll).gap || "22");
+        const itemW = first.getBoundingClientRect().width;
+        stepPx = itemW + gap;
+        setWidth = stepPx * COUNT;
+
+        scroll.scrollLeft = setWidth;
+        updateEffects();
+      }
+
+      function keepLoop(){
+        if(!setWidth) return 0;
+        const x = scroll.scrollLeft;
+        const leftBound  = setWidth * 0.5;
+        const rightBound = setWidth * 1.5;
+
+        if(x < leftBound){
+          scroll.scrollLeft = x + setWidth;
+          return +setWidth;
+        }
+        if(x > rightBound){
+          scroll.scrollLeft = x - setWidth;
+          return -setWidth;
+        }
+        return 0;
+      }
+
+      function getNearest(){
+        const vrect = viewport.getBoundingClientRect();
+        const vcenter = vrect.left + vrect.width / 2;
+
+        const items = scroll.querySelectorAll(".photo");
+        let best = null;
+        let bestDist = Infinity;
+
+        items.forEach(el=>{
+          const r = el.getBoundingClientRect();
+          const c = r.left + r.width/2;
+          const dist = Math.abs(c - vcenter);
+          if(dist < bestDist){ bestDist = dist; best = el; }
+        });
+        return best;
+      }
+
+      function scrollToCenter(el, smooth){
+        if(!el) return;
+        const vrect = viewport.getBoundingClientRect();
+        const vcenter = vrect.left + vrect.width / 2;
+
+        const r = el.getBoundingClientRect();
+        const c = r.left + r.width/2;
+        const dx = c - vcenter;
+
+        programmatic = true;
+        scroll.style.scrollBehavior = smooth ? "smooth" : "auto";
+        scroll.scrollLeft += dx;
+
+        setTimeout(() => {
+          scroll.style.scrollBehavior = "auto";
+          keepLoop();
+          updateEffects();
+          programmatic = false;
+        }, smooth ? 260 : 0);
+      }
+
+      function snapToNearest(){ scrollToCenter(getNearest(), true); }
+
+      function updateEffects(){
+        const vrect = viewport.getBoundingClientRect();
+        const vcenter = vrect.left + vrect.width / 2;
+
+        const items = scroll.querySelectorAll(".photo");
+        let best = null;
+        let bestAbs = Infinity;
+
+        items.forEach(el=>{
+          const r = el.getBoundingClientRect();
+          const c = r.left + r.width/2;
+          const nd = (c - vcenter) / vrect.width;
+          const abs = Math.abs(nd);
+
+          const rot = clamp(nd * 80, -80, 80);
+          const scale = clamp(1.08 - abs * 0.42, 0.78, 1.08);
+          const opacity = clamp(1.00 - abs * 0.82, 0.24, 1.00);
+          const fade = clamp(abs * 1.25, 0.0, 0.88);
+          const blur = (abs * 2.2).toFixed(2) + "px";
+
+          el.style.setProperty("--r", rot.toFixed(2) + "deg");
+          el.style.setProperty("--s", scale.toFixed(3));
+          el.style.setProperty("--o", opacity.toFixed(3));
+          el.style.setProperty("--fade", fade.toFixed(3));
+          el.style.setProperty("--blur", blur);
+
+          if(abs < bestAbs){ bestAbs = abs; best = el; }
+          el.style.zIndex = String(1000 - Math.floor(abs * 1000));
+        });
+
+        if(best) best.style.zIndex = "2000";
+      }
+
+      function stopInertia(){
+        if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+      }
+
+      function startInertia(){
+        stopInertia();
+        let last = performance.now();
+
+        function step(t){
+          const dt = t - last;
+          last = t;
+
+          scroll.scrollLeft += velocity * dt;
+          keepLoop();
+          updateEffects();
+
+          const k = Math.pow(FRICTION, dt / 16);
+          velocity *= k;
+
+          if(Math.abs(velocity) < MIN_V){
+            stopInertia();
+            snapToNearest();
+            startAuto();
+            return;
+          }
+          rafId = requestAnimationFrame(step);
+        }
+        rafId = requestAnimationFrame(step);
+      }
+
+      function nudge(dir, isAuto=false){
+        if(!stepPx) return;
+        if(!isAuto) userInteracted();
+
+        stopInertia();
+        dragging = false;
+        scroll.classList.remove("dragging");
+
+        const cur = getNearest();
+        let target = null;
+        if(cur){
+          target = dir > 0 ? cur.nextElementSibling : cur.previousElementSibling;
+        }
+        if(!target){
+          const all = scroll.querySelectorAll(".photo");
+          target = dir > 0 ? all[0] : all[all.length - 1];
+        }
+
+        scrollToCenter(target, true);
+        setTimeout(()=> { keepLoop(); snapToNearest(); }, 320);
+      }
+
+      prevBtn.addEventListener("click", () => nudge(-1, false));
+      nextBtn.addEventListener("click", () => nudge(+1, false));
+
+      scroll.addEventListener("pointerdown", (e) => {
+        if(e.button !== undefined && e.button !== 0) return;
+
+        userInteracted();
+        stopInertia();
+
+        dragging = true;
+        pointerId = e.pointerId;
+        scroll.setPointerCapture(pointerId);
+
+        scroll.classList.add("dragging");
+        startX = e.clientX;
+        startScrollLeft = scroll.scrollLeft;
+
+        prevX = e.clientX;
+        prevT = performance.now();
+        velocity = 0;
+      });
+
+      scroll.addEventListener("pointermove", (e) => {
+        if(!dragging || e.pointerId !== pointerId) return;
+
+        const dx = e.clientX - startX;
+        scroll.scrollLeft = startScrollLeft - dx * DRAG_GAIN;
+
+        const shift = keepLoop();
+        if(shift !== 0) startScrollLeft += shift;
+
+        const now = performance.now();
+        const dt = now - prevT;
+        if(dt > 0){
+          const v = -(e.clientX - prevX) / dt;
+          const vv = clamp(v, -MAX_V, MAX_V);
+          velocity = velocity * 0.82 + vv * 0.18;
+          prevX = e.clientX;
+          prevT = now;
+        }
+        updateEffects();
+      });
+
+      function endDrag(e){
+        if(!dragging || (e.pointerId !== undefined && e.pointerId !== pointerId)) return;
+
+        dragging = false;
+        scroll.classList.remove("dragging");
+        pointerId = null;
+
+        if(Math.abs(velocity) > 0.08){
+          startInertia();
+        }else{
+          snapToNearest();
+          startAuto();
+        }
+      }
+      scroll.addEventListener("pointerup", endDrag);
+      scroll.addEventListener("pointercancel", endDrag);
+
+      scroll.addEventListener("wheel", (e) => {
+        userInteracted();
+        if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+          e.preventDefault();
+          scroll.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+
+      let snapTimer = 0;
+      scroll.addEventListener("scroll", () => {
+        if(!programmatic) userInteracted();
+        keepLoop();
+        updateEffects();
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(() => {
+          if(!dragging && !rafId) snapToNearest();
+        }, 140);
+      }, { passive: true });
+
+      window.addEventListener("resize", () => measure());
+
+      requestAnimationFrame(() => {
+        measure();
+        snapToNearest();
+        startAuto();
+      });
+    })();
+  </script>
 </body>
 </html>
